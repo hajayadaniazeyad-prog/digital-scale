@@ -6,28 +6,46 @@
     <style>
         :root { --pink: #fce4ec; --blue: #e3f2fd; --accent: #2196f3; }
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, var(--pink), var(--blue)); display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; position: relative; }
         .q-box { background: #fafafa; padding: 15px; margin-bottom: 10px; border-radius: 10px; border-right: 5px solid #f06292; }
         label { display: block; margin-bottom: 10px; font-weight: bold; }
         input[type="range"] { width: 100%; accent-color: var(--accent); }
         .score-val { font-weight: bold; color: var(--accent); float: left; background: #e3f2fd; padding: 2px 8px; border-radius: 5px; }
         button { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
+        #timer { position: sticky; top: 0; background: #ff5252; color: white; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; z-index: 100; }
         #result { display: none; margin-top: 20px; text-align: center; border: 2px solid var(--accent); padding: 20px; border-radius: 15px; background: #fff; }
+        #already-submitted { display: none; text-align: center; padding: 50px; }
     </style>
 </head>
 <body>
-<div class="card">
-    <h1>مقياس الاتزان الرقمي</h1>
-    <div id="quiz"></div>
-    <button onclick="submitData()">إظهار نتيجتي</button>
-    <div id="result">
-        <h2 id="scoreDisplay"></h2>
-        <p id="msgDisplay" style="font-size: 1.2rem;"></p>
-        <p style="color: #95a5a6; font-size: 0.8rem; margin-top: 10px;">تم تسجيل نتيجتك (من 4) في قاعدة البيانات.</p>
+
+<div id="main-container" class="card">
+    <div id="already-submitted">
+        <h2>عذراً! ✋</h2>
+        <p>لقد قمت بالمشاركة في هذا المقياس مسبقاً. لا يمكن إرسال أكثر من رد.</p>
+    </div>
+
+    <div id="quiz-ui">
+        <div id="timer">الوقت المتبقي: 02:00</div>
+        <h1>مقياس الاتزان الرقمي</h1>
+        <div id="quiz"></div>
+        <button id="submitBtn" onclick="submitData()">إظهار نتيجتي</button>
+        <div id="result">
+            <h2 id="scoreDisplay"></h2>
+            <p id="msgDisplay" style="font-size: 1.2rem;"></p>
+        </div>
     </div>
 </div>
 
 <script>
+    const formSubmittedKey = 'digital_scale_submitted';
+    
+    // فحص إذا كان الطالب قد جاوب من قبل
+    if (localStorage.getItem(formSubmittedKey)) {
+        document.getElementById('quiz-ui').style.display = 'none';
+        document.getElementById('already-submitted').style.display = 'block';
+    }
+
     const questions = [
         "صعوبة التركيز لأكثر من 10 دقائق؟", "وجود 'ضبابية' في عقلك؟", "سرعة الشعور بالملل؟",
         "الغرق في 'التمرير اللانهائي'؟", "استخدام لغة 'الميمز' في الواقع؟", "الهروب من المهام الجادة؟",
@@ -48,34 +66,46 @@
         document.getElementById(`val-${id}`).innerText = value;
     }
 
-    function submitData() {
-        // 1. حساب المجموع الفعلي من 90
+    // إعداد المؤقت (120 ثانية)
+    let timeLeft = 120;
+    const timerElement = document.getElementById('timer');
+    const countdown = setInterval(() => {
+        timeLeft--;
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        timerElement.innerText = `الوقت المتبقي: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            submitData(true); // إرسال تلقائي عند انتهاء الوقت
+        }
+    }, 1000);
+
+    function submitData(isAuto = false) {
+        if (localStorage.getItem(formSubmittedKey)) return;
+
+        clearInterval(countdown);
         const scores = Array.from(document.querySelectorAll('.val')).map(i => parseInt(i.value));
         const totalRaw = scores.reduce((a, b) => a + b, 0);
-        
-        // 2. تحويل النتيجة لتكون من 4 (معادلة: المجموع / 90 * 4)
-        // واستخدام .toFixed(1) لجعلها مثلاً 3.2 من 4
         const finalScore = ((totalRaw / 90) * 4).toFixed(1);
         
+        // إظهار النتائج
+        document.getElementById('quiz').style.display = 'none';
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('timer').style.display = 'none';
         document.getElementById('result').style.display = 'block';
-        document.getElementById('scoreDisplay').innerText = `تقييمك النهائي: ${finalScore} من 4`;
         
-        let msg = "";
-        if(finalScore <= 1.5) msg = "<b>وضعك ممتاز!</b> تحكمك الرقمي عالٍ جداً.";
-        else if(finalScore <= 2.8) msg = "<b>وضعك متوسط.</b> هناك بعض التشتت الرقمي.";
-        else msg = "<b>وضعك سيء!</b> أنت تعاني من إفراط رقمي واضح.";
+        document.getElementById('scoreDisplay').innerText = isAuto ? "انتهى الوقت! نتيجتك: " + finalScore : "تقييمك النهائي: " + finalScore + " من 4";
         
-        document.getElementById('msgDisplay').innerHTML = msg;
+        // منع الطالب من الإرسال مرة أخرى
+        localStorage.setItem(formSubmittedKey, 'true');
 
-        // 3. الإرسال لـ Google Form (النتيجة من 4)
+        // الإرسال لـ Google Form
         const formURL = "https://docs.google.com/forms/u/0/d/1uMzal_sKtqnh6wqEXXLLZYrU_SAGKLYKvno7LAGmv8ws/formResponse";
         const entryID = "entry.609466321";
-
         const data = new FormData();
-        data.append(entryID, finalScore); // هنا نرسل الرقم من 4
+        data.append(entryID, finalScore);
         fetch(formURL, { method: "POST", mode: "no-cors", body: data });
-        
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 </script>
 </body>
