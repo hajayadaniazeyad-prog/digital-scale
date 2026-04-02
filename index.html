@@ -2,204 +2,67 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مقياس الاتزان الرقمي | تحليل PDF & CDF</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>مقياس الاتزان الرقمي</title>
     <style>
-        :root {
-            --pink: #fce4ec;
-            --blue: #e3f2fd;
-            --accent-pink: #f06292;
-            --accent-blue: #2196f3;
-            --text: #2c3e50;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--pink) 0%, var(--blue) 100%);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            max-width: 700px;
-            width: 100%;
-        }
-
-        h1 { text-align: center; color: var(--accent-blue); margin-bottom: 5px; }
-        p.subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
-
-        .question {
-            background: #fdfdfd;
-            padding: 15px;
-            margin-bottom: 15 shadow;
-            border-radius: 15px;
-            border-right: 6px solid var(--accent-pink);
-            transition: 0.3s;
-        }
-
-        label { display: block; margin-bottom: 10px; font-weight: 600; }
-
-        input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-            accent-color: var(--accent-blue);
-        }
-
-        .range-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: #95a5a6;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
-        }
-
-        button:hover { background: #1976d2; transform: translateY(-2px); }
-
-        #results {
-            display: none;
-            margin-top: 30px;
-            text-align: center;
-            animation: fadeIn 0.8s;
-        }
-
-        canvas { margin-top: 20px; max-width: 100%; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        :root { --pink: #fce4ec; --blue: #e3f2fd; --accent: #2196f3; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, var(--pink), var(--blue)); display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
+        .q-box { background: #fafafa; padding: 15px; margin-bottom: 10px; border-radius: 10px; border-right: 5px solid #f06292; }
+        input[type="range"] { width: 100%; accent-color: var(--accent); }
+        button { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
+        #result { display: none; margin-top: 20px; text-align: center; border: 2px solid var(--accent); padding: 20px; border-radius: 15px; background: #fff; }
     </style>
 </head>
 <body>
-
 <div class="card">
     <h1>مقياس الاتزان الرقمي</h1>
-    <p class="subtitle">حلل سلوكك الرقمي باستخدام الإحصاء (PDF & CDF)</p>
-
     <div id="quiz"></div>
-
-    <button onclick="analyzeData()">رؤية التحليل الإحصائي</button>
-
-    <div id="results">
-        <h2 id="scoreText"></h2>
-        <p id="analysisText"></p>
-        <hr>
-        <h3>الرسم البياني للتوزيع (PDF vs CDF)</h3>
-        <canvas id="statChart"></canvas>
+    <button onclick="submitData()">إظهار نتيجتي</button>
+    <div id="result">
+        <h2 id="scoreDisplay"></h2>
+        <p id="msgDisplay" style="font-size: 1.2rem;"></p>
+        <p style="color: #95a5a6; font-size: 0.8rem; margin-top: 10px;">تم تسجيل نتيجتك إحصائياً للمبرمجة.</p>
     </div>
 </div>
 
 <script>
-    const questionsList = [
-        "صعوبة التركيز لأكثر من 10 دقائق دون هاتف؟",
-        "الشعور بضبابية ذهنية وصعوبة تذكر الكلمات؟",
-        "الانزعاج إذا لم تحصل على نتيجة فورية؟",
-        "التمرير اللانهائي (Scrolling) دون وعي؟",
-        "استخدام لغة 'الميمز' في الواقع؟",
-        "الهروب من الواجبات الجامعية للمحتوى الرقمي؟",
-        "القلق عند الجلوس في مكان هادئ بلا هاتف؟",
-        "الشعور بملل الهوايات التقليدية كالمشي؟",
-        "ضجيج ذهني قبل النوم بسبب ما شاهدته؟"
+    const questions = [
+        "صعوبة التركيز لأكثر من 10 دقائق؟", "وجود 'ضبابية' في عقلك؟", "سرعة الشعور بالملل؟",
+        "الغرق في 'التمرير اللانهائي'؟", "استخدام لغة 'الميمز' في الواقع؟", "الهروب من المهام الجادة؟",
+        "القلق عند الجلوس في الهدوء؟", "ملل الهوايات التقليدية؟", "ضجيج المحتوى قبل النوم؟"
     ];
 
-    const quizContainer = document.getElementById('quiz');
-    questionsList.forEach((q, i) => {
-        quizContainer.innerHTML += `
-            <div class="question">
-                <label>${i + 1}. ${q}</label>
-                <input type="range" class="q-input" min="0" max="10" value="5" id="val${i}">
-                <div class="range-info">
-                    <span>أبداً (0)</span>
-                    <span id="label${i}">الدرجة: 5</span>
-                    <span>دائماً (10)</span>
-                </div>
-            </div>
-        `;
+    const container = document.getElementById('quiz');
+    questions.forEach((q, i) => {
+        container.innerHTML += `
+            <div class="q-box">
+                <label>${i+1}. ${q}</label>
+                <input type="range" class="val" min="0" max="10" value="5">
+            </div>`;
     });
 
-    // تحديث الأرقام المعروضة عند تحريك المنزلق
-    document.querySelectorAll('.q-input').forEach((input, i) => {
-        input.oninput = () => document.getElementById(`label${i}`).innerText = `الدرجة: ${input.value}`;
-    });
-
-    let chartObj = null;
-
-    function analyzeData() {
-        const scores = Array.from(document.querySelectorAll('.q-input')).map(i => parseInt(i.value));
+    function submitData() {
+        const scores = Array.from(document.querySelectorAll('.val')).map(i => parseInt(i.value));
         const total = scores.reduce((a, b) => a + b, 0);
+        
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('scoreDisplay').innerText = `درجتك هي: ${total} من 90`;
+        
+        let msg = "";
+        if(total <= 30) msg = "<b>وضعك ممتاز!</b> أنت مسيطر تماماً على حياتك الرقمية.";
+        else if(total <= 60) msg = "<b>وضعك متوسط.</b> بدأت تظهر عليك بوادر الإجهاد الرقمي.";
+        else msg = "<b>وضعك سيء!</b> أنت بحاجة ماسة لـ 'ديتوكس رقمي' فوري.";
+        document.getElementById('msgDisplay').innerHTML = msg;
 
-        // حساب الإحصاءات
-        const counts = new Array(11).fill(0);
-        scores.forEach(s => counts[s]++);
-        const pdf = counts.map(c => c / scores.length);
-        const cdf = [];
-        pdf.reduce((acc, curr, i) => cdf[i] = acc + curr, 0);
+        // الإرسال التلقائي للنموذج (تم وضع بياناتك هنا مباشرة)
+        const formURL = "https://docs.google.com/forms/u/0/d/1uMzal_sKtqnh6wqEXXLLZYrU_SAGKLYKvno7LAGmv8ws/formResponse";
+        const entryID = "entry.609466321";
 
-        // إظهار النتائج
-        document.getElementById('results').style.display = 'block';
-        document.getElementById('scoreText').innerText = `درجتك: ${total} من 90`;
-
-        let analysis = "";
-        if(total <= 30) analysis = "وضعك ممتاز ومسيطر!";
-        else if(total <= 60) analysis = "بدأت تظهر عليك علامات الإجهاد الرقمي.";
-        else analysis = "أنت بحاجة ماسة لديتوكس رقمي!";
-        document.getElementById('analysisText').innerText = analysis;
-
-        renderChart(pdf, cdf);
+        const data = new FormData();
+        data.append(entryID, total);
+        fetch(formURL, { method: "POST", mode: "no-cors", body: data });
+        
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
-
-    function renderChart(pdf, cdf) {
-        const ctx = document.getElementById('statChart').getContext('2d');
-        if(chartObj) chartObj.destroy();
-
-        chartObj = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [0,1,2,3,4,5,6,7,8,9,10],
-                datasets: [
-                    {
-                        label: 'PDF (كثافة الاحتمال)',
-                        data: pdf,
-                        borderColor: '#f06292',
-                        backgroundColor: 'rgba(240, 98, 146, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'CDF (التوزيع التراكمي)',
-                        data: cdf,
-                        borderColor: '#2196f3',
-                        borderDash: [5, 5],
-                        tension: 0.2
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    y: { beginAtZero: true, max: 1 },
-                    x: { title: { display: true, text: 'درجة العرض (0-10)' } }
-                }
-            }
-        });
     }
 </script>
 </body>
