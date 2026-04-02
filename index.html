@@ -8,7 +8,9 @@
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, var(--pink), var(--blue)); display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
         .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
         .q-box { background: #fafafa; padding: 15px; margin-bottom: 10px; border-radius: 10px; border-right: 5px solid #f06292; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; }
         input[type="range"] { width: 100%; accent-color: var(--accent); }
+        .score-val { font-weight: bold; color: var(--accent); float: left; background: #e3f2fd; padding: 2px 8px; border-radius: 5px; }
         button { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
         #result { display: none; margin-top: 20px; text-align: center; border: 2px solid var(--accent); padding: 20px; border-radius: 15px; background: #fff; }
     </style>
@@ -21,7 +23,7 @@
     <div id="result">
         <h2 id="scoreDisplay"></h2>
         <p id="msgDisplay" style="font-size: 1.2rem;"></p>
-        <p style="color: #95a5a6; font-size: 0.8rem; margin-top: 10px;">تم تسجيل نتيجتك إحصائياً للمبرمجة.</p>
+        <p style="color: #95a5a6; font-size: 0.8rem; margin-top: 10px;">تم تسجيل نتيجتك (من 4) في قاعدة البيانات.</p>
     </div>
 </div>
 
@@ -36,30 +38,41 @@
     questions.forEach((q, i) => {
         container.innerHTML += `
             <div class="q-box">
+                <span class="score-val" id="val-${i}">5</span>
                 <label>${i+1}. ${q}</label>
-                <input type="range" class="val" min="0" max="10" value="5">
+                <input type="range" class="val" min="0" max="10" value="5" oninput="updateVal(${i}, this.value)">
             </div>`;
     });
 
+    function updateVal(id, value) {
+        document.getElementById(`val-${id}`).innerText = value;
+    }
+
     function submitData() {
+        // 1. حساب المجموع الفعلي من 90
         const scores = Array.from(document.querySelectorAll('.val')).map(i => parseInt(i.value));
-        const total = scores.reduce((a, b) => a + b, 0);
+        const totalRaw = scores.reduce((a, b) => a + b, 0);
+        
+        // 2. تحويل النتيجة لتكون من 4 (معادلة: المجموع / 90 * 4)
+        // واستخدام .toFixed(1) لجعلها مثلاً 3.2 من 4
+        const finalScore = ((totalRaw / 90) * 4).toFixed(1);
         
         document.getElementById('result').style.display = 'block';
-        document.getElementById('scoreDisplay').innerText = `درجتك هي: ${total} من 90`;
+        document.getElementById('scoreDisplay').innerText = `تقييمك النهائي: ${finalScore} من 4`;
         
         let msg = "";
-        if(total <= 30) msg = "<b>وضعك ممتاز!</b> أنت مسيطر تماماً على حياتك الرقمية.";
-        else if(total <= 60) msg = "<b>وضعك متوسط.</b> بدأت تظهر عليك بوادر الإجهاد الرقمي.";
-        else msg = "<b>وضعك سيء!</b> أنت بحاجة ماسة لـ 'ديتوكس رقمي' فوري.";
+        if(finalScore <= 1.5) msg = "<b>وضعك ممتاز!</b> تحكمك الرقمي عالٍ جداً.";
+        else if(finalScore <= 2.8) msg = "<b>وضعك متوسط.</b> هناك بعض التشتت الرقمي.";
+        else msg = "<b>وضعك سيء!</b> أنت تعاني من إفراط رقمي واضح.";
+        
         document.getElementById('msgDisplay').innerHTML = msg;
 
-        // الإرسال التلقائي للنموذج (تم وضع بياناتك هنا مباشرة)
+        // 3. الإرسال لـ Google Form (النتيجة من 4)
         const formURL = "https://docs.google.com/forms/u/0/d/1uMzal_sKtqnh6wqEXXLLZYrU_SAGKLYKvno7LAGmv8ws/formResponse";
         const entryID = "entry.609466321";
 
         const data = new FormData();
-        data.append(entryID, total);
+        data.append(entryID, finalScore); // هنا نرسل الرقم من 4
         fetch(formURL, { method: "POST", mode: "no-cors", body: data });
         
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
