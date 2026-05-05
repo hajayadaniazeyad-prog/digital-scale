@@ -42,7 +42,7 @@
 
 <script>
     // --- جزء التحكم الخاص بالمهندسة ---
-    // إذا أردتِ إعادة التجربة للطلاب، غيري الرقم "1" إلى "2" وهكذا..
+    // لتكرار التجربة، غيري الرقم "1" إلى "2" وهكذا..
     const currentExperimentVersion = "1"; 
     // ---------------------------------
 
@@ -54,9 +54,16 @@
     }
 
     const questions = [
-        "صعوبة التركيز لأكثر من 10 دقائق؟", "وجود 'ضبابية' في عقلك؟", "سرعة الشعور بالملل؟",
-        "الغرق في 'التمرير اللانهائي'؟", "استخدام لغة 'الميمز' في الواقع؟", "الهروب من المهام الجادة؟",
-        "القلق عند الجلوس في الهدوء؟", "ملل الهوايات التقليدية؟", "ضجيج المحتوى قبل النوم؟"
+        "صعوبة التركيز لأكثر من 10 دقائق؟", 
+        "وجود 'ضبابية' في عقلك؟", 
+        "سرعة الشعور بالملل؟",
+        "الغرق في 'التمرير اللانهائي'؟", 
+        "استخدام لغة 'الميمز' في الواقع؟", 
+        "الهروب من المهام الجادة؟",
+        "القلق عند الجلوس في الهدوء؟", 
+        "ملل الهوايات التقليدية؟", 
+        "ضجيج المحتوى قبل النوم؟",
+        "الشعور بالتوتر عند الابتعاد عن الهاتف؟"
     ];
 
     const container = document.getElementById('quiz');
@@ -86,7 +93,9 @@
 
         const scores = Array.from(document.querySelectorAll('.val')).map(i => parseInt(i.value));
         const totalRaw = scores.reduce((a, b) => a + b, 0);
-        const finalScore = parseFloat(((totalRaw / 90) * 4).toFixed(1));
+        
+        // الحساب على 100 لأن الأسئلة 10
+        const finalScore = parseFloat(((totalRaw / 100) * 4).toFixed(1)); 
         
         document.getElementById('quiz').style.display = 'none';
         document.getElementById('submitBtn').style.display = 'none';
@@ -103,12 +112,17 @@
         const msgDiv = document.getElementById('msgDisplay');
         msgDiv.innerHTML = msg; msgDiv.style.color = color;
 
-        // منع الطالب من الإرسال في هذا الإصدار تحديداً
         localStorage.setItem(storageKey, 'true');
 
         const formURL = "https://docs.google.com/forms/u/0/d/1uMzal_sKtqnh6wqEXXLLZYrU_SAGKLYKvno7LAGmv8ws/formResponse";
         const data = new FormData();
+        
+        // إرسال النتيجة
         data.append("entry.609466321", finalScore);
+        
+        // إرسال رقم الجولة تلقائياً
+        data.append("entry.931849774", currentExperimentVersion); 
+
         fetch(formURL, { method: "POST", mode: "no-cors", body: data });
     }
 </script>
