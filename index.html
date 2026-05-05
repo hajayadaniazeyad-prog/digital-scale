@@ -43,7 +43,7 @@
 <script>
     // --- جزء التحكم الخاص بالمهندسة ---
     // لتكرار التجربة، غيري الرقم "1" إلى "2" وهكذا..
-    const currentExperimentVersion = "1"; 
+    const currentExperimentVersion = "2"; 
     // ---------------------------------
 
     const storageKey = 'digital_scale_v' + currentExperimentVersion;
@@ -105,9 +105,9 @@
         document.getElementById('scoreDisplay').innerText = `نتيجتك: ${finalScore} من 4`;
         
         let msg = ""; let color = "";
-        if(finalScore <= 1.5) { msg = "✅ ممتاز! أنت مسيطر."; color = "#2ecc71"; }
-        else if(finalScore <= 2.8) { msg = "⚠️ متوسط. انتبه لتشتتك."; color = "#f39c12"; }
-        else { msg = "🚨 سيء! تحتاج ديتوكس رقمي."; color = "#e74c3c"; }
+        if(finalScore <= 1.5) { msg = "✅ ممتاز! أنت مسيطر~ استمع الى الحلول الوقائية."; color = "#2ecc71"; }
+        else if(finalScore <= 2.8) { msg = "⚠️ متوسط. انتبه لتشتتك ."; color = "#f39c12"; }
+        else { msg = "🚨 انت في المنطة الحمراء! استمع الى الحلول العلاجية."; color = "#e74c3c"; }
         
         const msgDiv = document.getElementById('msgDisplay');
         msgDiv.innerHTML = msg; msgDiv.style.color = color;
