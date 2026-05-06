@@ -2,20 +2,118 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <!-- السطر السحري لحل مشكلة الموبايل -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مقياس الاتزان الرقمي</title>
     <style>
         :root { --pink: #fce4ec; --blue: #e3f2fd; --accent: #2196f3; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, var(--pink), var(--blue)); display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; position: relative; }
-        .q-box { background: #fafafa; padding: 15px; margin-bottom: 10px; border-radius: 10px; border-right: 5px solid #f06292; }
-        label { display: block; margin-bottom: 10px; font-weight: bold; }
-        input[type="range"] { width: 100%; accent-color: var(--accent); }
-        .score-val { font-weight: bold; color: var(--accent); float: left; background: #e3f2fd; padding: 2px 8px; border-radius: 5px; }
-        button { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
-        #timer { position: sticky; top: 0; background: #ff5252; color: white; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; z-index: 100; }
-        #result { display: none; margin-top: 20px; text-align: center; border: 3px solid var(--accent); padding: 30px; border-radius: 15px; background: #fff; }
-        .status-msg { font-size: 1.4rem; margin-top: 15px; font-weight: bold; }
-        #already-submitted { display: none; text-align: center; padding: 50px; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, var(--pink), var(--blue)); 
+            display: flex; 
+            justify-content: center; 
+            padding: 10px; /* تقليل الحواف للموبايل */
+            min-height: 100vh; 
+            margin: 0;
+        }
+
+        .card { 
+            background: white; 
+            padding: 20px; /* تقليل البادينج */
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            max-width: 600px; 
+            width: 100%; 
+            position: relative;
+            box-sizing: border-box; /* لضمان عدم خروج العناصر عن الإطار */
+        }
+
+        h1 { font-size: 1.5rem; text-align: center; } /* تصغير العنوان قليلاً للموبايل */
+
+        .q-box { 
+            background: #fafafa; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 10px; 
+            border-right: 5px solid #f06292; 
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+            line-height: 1.4;
+            font-size: 1rem;
+        }
+
+        input[type="range"] { 
+            width: 100%; 
+            accent-color: var(--accent); 
+            height: 25px; /* تسهيل اللمس على الموبايل */
+        }
+
+        .score-val { 
+            font-weight: bold; 
+            color: var(--accent); 
+            float: left; 
+            background: #e3f2fd; 
+            padding: 2px 10px; 
+            border-radius: 5px; 
+        }
+
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            font-size: 1.1rem; 
+            -webkit-tap-highlight-color: transparent; /* تحسين تجربة اللمس */
+        }
+
+        #timer { 
+            position: sticky; 
+            top: 0; 
+            background: #ff5252; 
+            color: white; 
+            padding: 12px; 
+            border-radius: 10px; 
+            text-align: center; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        #result { 
+            display: none; 
+            margin-top: 20px; 
+            text-align: center; 
+            border: 3px solid var(--accent); 
+            padding: 20px; 
+            border-radius: 15px; 
+            background: #fff; 
+        }
+
+        .status-msg { font-size: 1.2rem; margin-top: 15px; font-weight: bold; }
+        
+        #already-submitted, #time-restriction { 
+            display: none; 
+            text-align: center; 
+            padding: 30px 10px; 
+        }
+
+        /* تحسينات إضافية للشاشات الصغيرة جداً */
+        @media (max-width: 400px) {
+            h1 { font-size: 1.2rem; }
+            .card { padding: 15px; }
+            label { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
@@ -23,11 +121,16 @@
 <div id="main-container" class="card">
     <div id="already-submitted">
         <h2>عذراً! ✋</h2>
-        <p>لقد شاركت في هذه الجولة مسبقاً. انتظر تعليمات المهندسة لبدء جولة جديدة.</p>
+        <p>لقد شاركت في هذه الجولة مسبقاً.</p>
+    </div>
+
+    <div id="time-restriction">
+        <h2>الاختبار غير متاح الآن 🕒</h2>
+        <p>يفتح الاختبار من الساعة <b>10:30 صباحاً</b> حتى <b>10:45 صباحاً</b>.</p>
     </div>
 
     <div id="quiz-ui">
-        <div id="timer">الوقت المتبقي: 05:00</div>
+        <div id="timer">جاري التحقق...</div>
         <h1>مقياس الاتزان الرقمي</h1>
         <div id="quiz"></div>
         <button id="submitBtn" onclick="submitData()">إظهار نتيجتي</button>
@@ -35,16 +138,26 @@
         <div id="result">
             <h2 id="scoreDisplay"></h2>
             <div id="msgDisplay" class="status-msg"></div>
-            <p style="color: #95a5a6; font-size: 0.8rem; margin-top: 20px;">تم تسجيل ردك في قاعدة البيانات.</p>
+            <p style="color: #95a5a6; font-size: 0.8rem; margin-top: 20px;">تم تسجيل ردك تلقائياً.</p>
         </div>
     </div>
 </div>
 
 <script>
-    const currentExperimentVersion = "7"; 
+    const currentExperimentVersion = "8"; 
     const storageKey = 'digital_scale_v' + currentExperimentVersion;
 
-    if (localStorage.getItem(storageKey)) {
+    const now = new Date();
+    const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+    const startRange = (10 * 60) + 30; 
+    const endRange = (10 * 60) + 45;   
+
+    const isWithinTimeRange = (currentMinutes >= startRange && currentMinutes < endRange);
+
+    if (!isWithinTimeRange) {
+        document.getElementById('quiz-ui').style.display = 'none';
+        document.getElementById('time-restriction').style.display = 'block';
+    } else if (localStorage.getItem(storageKey)) {
         document.getElementById('quiz-ui').style.display = 'none';
         document.getElementById('already-submitted').style.display = 'block';
     }
@@ -74,14 +187,28 @@
 
     function updateVal(id, value) { document.getElementById(`val-${id}`).innerText = value; }
 
-    // --- تعديل الوقت هنا إلى 300 ثانية (5 دقائق) ---
-    let timeLeft = 300; 
+    const endTime = new Date();
+    endTime.setHours(10, 45, 0); 
+
+    let studentDeadline = new Date().getTime() + (5 * 60 * 1000); 
+    if (studentDeadline > endTime.getTime()) {
+        studentDeadline = endTime.getTime();
+    }
+
     const countdown = setInterval(() => {
-        timeLeft--;
+        const currentTime = new Date().getTime();
+        let timeLeft = Math.floor((studentDeadline - currentTime) / 1000);
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            document.getElementById('timer').innerText = "انتهى الوقت!";
+            submitData(true);
+            return;
+        }
+
         let mins = Math.floor(timeLeft / 60);
         let secs = timeLeft % 60;
         document.getElementById('timer').innerText = `الوقت المتبقي: ${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        if (timeLeft <= 0) { clearInterval(countdown); submitData(true); }
     }, 1000);
 
     function submitData(isAuto = false) {
@@ -100,9 +227,9 @@
         document.getElementById('scoreDisplay').innerText = `نتيجتك: ${finalScore} من 4`;
         
         let msg = ""; let color = "";
-        if(finalScore <= 1.5) { msg = "✅ ممتاز! أنت مسيطر~ استمع الى الحلول الوقائية."; color = "#2ecc71"; }
-        else if(finalScore <= 2.8) { msg = "⚠️ متوسط. انتبه لتشتتك ."; color = "#f39c12"; }
-        else { msg = "🚨 انت في المنطقة الحمراء! استمع الى الحلول العلاجية."; color = "#e74c3c"; }
+        if(finalScore <= 1.5) { msg = "✅ ممتاز! أنت مسيطر~"; color = "#2ecc71"; }
+        else if(finalScore <= 2.8) { msg = "⚠️ متوسط. انتبه لتشتتك."; color = "#f39c12"; }
+        else { msg = "🚨 أنت في المنطقة الحمراء!"; color = "#e74c3c"; }
         
         const msgDiv = document.getElementById('msgDisplay');
         msgDiv.innerHTML = msg; msgDiv.style.color = color;
