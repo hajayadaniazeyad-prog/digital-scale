@@ -2,135 +2,42 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <!-- السطر السحري لحل مشكلة الموبايل -->
+    <!-- السطر التالي لضمان ظهور الكود بشكل صحيح على شاشات الموبايل -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مقياس الاتزان الرقمي</title>
     <style>
         :root { --pink: #fce4ec; --blue: #e3f2fd; --accent: #2196f3; }
-        
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: linear-gradient(135deg, var(--pink), var(--blue)); 
-            display: flex; 
-            justify-content: center; 
-            padding: 10px; /* تقليل الحواف للموبايل */
-            min-height: 100vh; 
-            margin: 0;
-        }
-
-        .card { 
-            background: white; 
-            padding: 20px; /* تقليل البادينج */
-            border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            max-width: 600px; 
-            width: 100%; 
-            position: relative;
-            box-sizing: border-box; /* لضمان عدم خروج العناصر عن الإطار */
-        }
-
-        h1 { font-size: 1.5rem; text-align: center; } /* تصغير العنوان قليلاً للموبايل */
-
-        .q-box { 
-            background: #fafafa; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            border-radius: 10px; 
-            border-right: 5px solid #f06292; 
-        }
-
-        label { 
-            display: block; 
-            margin-bottom: 15px; 
-            font-weight: bold; 
-            line-height: 1.4;
-            font-size: 1rem;
-        }
-
-        input[type="range"] { 
-            width: 100%; 
-            accent-color: var(--accent); 
-            height: 25px; /* تسهيل اللمس على الموبايل */
-        }
-
-        .score-val { 
-            font-weight: bold; 
-            color: var(--accent); 
-            float: left; 
-            background: #e3f2fd; 
-            padding: 2px 10px; 
-            border-radius: 5px; 
-        }
-
-        button { 
-            width: 100%; 
-            padding: 15px; 
-            background: var(--accent); 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            font-size: 1.1rem; 
-            -webkit-tap-highlight-color: transparent; /* تحسين تجربة اللمس */
-        }
-
-        #timer { 
-            position: sticky; 
-            top: 0; 
-            background: #ff5252; 
-            color: white; 
-            padding: 12px; 
-            border-radius: 10px; 
-            text-align: center; 
-            font-weight: bold; 
-            margin-bottom: 15px; 
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        #result { 
-            display: none; 
-            margin-top: 20px; 
-            text-align: center; 
-            border: 3px solid var(--accent); 
-            padding: 20px; 
-            border-radius: 15px; 
-            background: #fff; 
-        }
-
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, var(--pink), var(--blue)); display: flex; justify-content: center; padding: 10px; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; position: relative; box-sizing: border-box; }
+        .q-box { background: #fafafa; padding: 15px; margin-bottom: 15px; border-radius: 10px; border-right: 5px solid #f06292; }
+        label { display: block; margin-bottom: 15px; font-weight: bold; line-height: 1.4; font-size: 1rem; }
+        input[type="range"] { width: 100%; accent-color: var(--accent); height: 25px; }
+        .score-val { font-weight: bold; color: var(--accent); float: left; background: #e3f2fd; padding: 2px 10px; border-radius: 5px; }
+        button { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
+        #timer { position: sticky; top: 0; background: #ff5252; color: white; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #result { display: none; margin-top: 20px; text-align: center; border: 3px solid var(--accent); padding: 20px; border-radius: 15px; background: #fff; }
         .status-msg { font-size: 1.2rem; margin-top: 15px; font-weight: bold; }
-        
-        #already-submitted, #time-restriction { 
-            display: none; 
-            text-align: center; 
-            padding: 30px 10px; 
-        }
-
-        /* تحسينات إضافية للشاشات الصغيرة جداً */
-        @media (max-width: 400px) {
-            h1 { font-size: 1.2rem; }
-            .card { padding: 15px; }
-            label { font-size: 0.9rem; }
-        }
+        #already-submitted, #time-restriction { display: none; text-align: center; padding: 30px 10px; }
     </style>
 </head>
 <body>
 
 <div id="main-container" class="card">
+    <!-- الرسالة التي تظهر إذا كان الطالب قد شارك مسبقاً -->
     <div id="already-submitted">
         <h2>عذراً! ✋</h2>
         <p>لقد شاركت في هذه الجولة مسبقاً.</p>
     </div>
 
+    <!-- الرسالة التي تظهر إذا كان الوقت غير مسموح به -->
     <div id="time-restriction">
         <h2>الاختبار غير متاح الآن 🕒</h2>
-        <p>يفتح الاختبار من الساعة <b>10:30 صباحاً</b> حتى <b>10:45 صباحاً</b>.</p>
+        <p id="time-msg-display"></p> <!-- سيتم تعبئة هذا النص من خلال الـ JavaScript بالأسفل -->
     </div>
 
+    <!-- واجهة الاختبار الرئيسية -->
     <div id="quiz-ui">
-        <div id="timer">جاري التحقق...</div>
+        <div id="timer">جاري التحقق من الوقت...</div>
         <h1>مقياس الاتزان الرقمي</h1>
         <div id="quiz"></div>
         <button id="submitBtn" onclick="submitData()">إظهار نتيجتي</button>
@@ -144,16 +51,41 @@
 </div>
 
 <script>
-    const currentExperimentVersion = "8"; 
+    /* 
+       ====================================================
+       1. تعديل إعدادات الدورة والوقت من هنا
+       ====================================================
+    */
+
+    // لتغيير رقم الدورة، غير الرقم بين القوسين ""
+    const currentExperimentVersion = "9"; 
+
+    // إعدادات وقت البداية (بنظام 24 ساعة)
+    const startHour = 19;  // الساعة 10
+    const startMin  = 8;  // الدقيقة 30
+
+    // إعدادات وقت النهاية (بنظام 24 ساعة)
+    const endHour   = 19;  // الساعة 10
+    const endMin    = 45;  // الدقيقة 45 (لو تريدين الساعة واحدة ظهراً اجعليها 13:00)
+
+    /* 
+       ====================================================
+       نهاية منطقة التعديل السهلة - لا تغير شيئاً بالأسفل 
+       ====================================================
+    */
+
+    // تحديث نص رسالة الوقت تلقائياً بناءً على تعديلاتك بالأعلى
+    document.getElementById('time-msg-display').innerHTML = `يفتح الاختبار من الساعة <b>${startHour}:${startMin}</b> حتى الساعة <b>${endHour}:${endMin}</b>.`;
+
     const storageKey = 'digital_scale_v' + currentExperimentVersion;
-
     const now = new Date();
-    const currentMinutes = (now.getHours() * 60) + now.getMinutes();
-    const startRange = (10 * 60) + 30; 
-    const endRange = (10 * 60) + 45;   
+    const currentTotalMinutes = (now.getHours() * 60) + now.getMinutes();
+    const startRange = (startHour * 60) + startMin; 
+    const endRange = (endHour * 60) + endMin;   
 
-    const isWithinTimeRange = (currentMinutes >= startRange && currentMinutes < endRange);
+    const isWithinTimeRange = (currentTotalMinutes >= startRange && currentTotalMinutes < endRange);
 
+    // التحقق من الشروط قبل البدء
     if (!isWithinTimeRange) {
         document.getElementById('quiz-ui').style.display = 'none';
         document.getElementById('time-restriction').style.display = 'block';
@@ -187,8 +119,9 @@
 
     function updateVal(id, value) { document.getElementById(`val-${id}`).innerText = value; }
 
+    // ضبط العداد الزمني
     const endTime = new Date();
-    endTime.setHours(10, 45, 0); 
+    endTime.setHours(endHour, endMin, 0); 
 
     let studentDeadline = new Date().getTime() + (5 * 60 * 1000); 
     if (studentDeadline > endTime.getTime()) {
