@@ -27,7 +27,7 @@
     </div>
 
     <div id="quiz-ui">
-        <div id="timer">الوقت المتبقي: 02:00</div>
+        <div id="timer">الوقت المتبقي: 05:00</div>
         <h1>مقياس الاتزان الرقمي</h1>
         <div id="quiz"></div>
         <button id="submitBtn" onclick="submitData()">إظهار نتيجتي</button>
@@ -41,11 +41,7 @@
 </div>
 
 <script>
-    // --- جزء التحكم الخاص بالمهندسة ---
-    // لتكرار التجربة، غيري الرقم إلى "5" وهكذا في المرات القادمة..
     const currentExperimentVersion = "7"; 
-    // ---------------------------------
-
     const storageKey = 'digital_scale_v' + currentExperimentVersion;
 
     if (localStorage.getItem(storageKey)) {
@@ -55,7 +51,7 @@
 
     const questions = [
         "صعوبة التركيز لأكثر من 10 دقائق؟", 
-        "تعاني من  التشوش الذهني، النسيان، وبطء التفكير؟", 
+        "تعاني من التشوش الذهني، النسيان، وبطء التفكير؟", 
         "سرعة الشعور بالملل؟",
         "الغرق في 'التمرير اللانهائي'( مثل كثرة استخدام انستجرام) ؟", 
         "استخدام لغة 'الميمز' في الواقع؟", 
@@ -78,12 +74,13 @@
 
     function updateVal(id, value) { document.getElementById(`val-${id}`).innerText = value; }
 
-    let timeLeft = 120;
+    // --- تعديل الوقت هنا إلى 300 ثانية (5 دقائق) ---
+    let timeLeft = 300; 
     const countdown = setInterval(() => {
         timeLeft--;
         let mins = Math.floor(timeLeft / 60);
         let secs = timeLeft % 60;
-        document.getElementById('timer').innerText = `الوقت المتبقي: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        document.getElementById('timer').innerText = `الوقت المتبقي: ${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
         if (timeLeft <= 0) { clearInterval(countdown); submitData(true); }
     }, 1000);
 
@@ -93,8 +90,6 @@
 
         const scores = Array.from(document.querySelectorAll('.val')).map(i => parseInt(i.value));
         const totalRaw = scores.reduce((a, b) => a + b, 0);
-        
-        // الحساب على 100 لأن الأسئلة 10
         const finalScore = parseFloat(((totalRaw / 100) * 4).toFixed(1)); 
         
         document.getElementById('quiz').style.display = 'none';
@@ -107,21 +102,16 @@
         let msg = ""; let color = "";
         if(finalScore <= 1.5) { msg = "✅ ممتاز! أنت مسيطر~ استمع الى الحلول الوقائية."; color = "#2ecc71"; }
         else if(finalScore <= 2.8) { msg = "⚠️ متوسط. انتبه لتشتتك ."; color = "#f39c12"; }
-        else { msg = "🚨 انت في المنطة الحمراء! استمع الى الحلول العلاجية."; color = "#e74c3c"; }
+        else { msg = "🚨 انت في المنطقة الحمراء! استمع الى الحلول العلاجية."; color = "#e74c3c"; }
         
         const msgDiv = document.getElementById('msgDisplay');
         msgDiv.innerHTML = msg; msgDiv.style.color = color;
 
         localStorage.setItem(storageKey, 'true');
 
-        // الرابط الجديد الصحيح
         const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSe8icJBiyNeApAblKUIJKXEgVenqXhBYZanwQibZalbLNSTCw/formResponse";
         const data = new FormData();
-        
-        // إرسال النتيجة (بالـ ID الصحيح)
         data.append("entry.1122387086", finalScore);
-        
-        // إرسال رقم الجولة تلقائياً
         data.append("entry.931849774", currentExperimentVersion); 
 
         fetch(formURL, { method: "POST", mode: "no-cors", body: data });
