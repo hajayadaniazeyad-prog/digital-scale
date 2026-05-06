@@ -42,7 +42,7 @@
 
 <script>
     // --- جزء التحكم الخاص بالمهندسة ---
-    // لتكرار التجربة، غيري الرقم "1" إلى "2" وهكذا..
+    // لتكرار التجربة، غيري الرقم إلى "5" وهكذا في المرات القادمة..
     const currentExperimentVersion = "4"; 
     // ---------------------------------
 
@@ -114,11 +114,12 @@
 
         localStorage.setItem(storageKey, 'true');
 
-        const formURL = "https://docs.google.com/forms/u/0/d/1uMzal_sKtqnh6wqEXXLLZYrU_SAGKLYKvno7LAGmv8ws/formResponse";
+        // الرابط الجديد الصحيح
+        const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSe8icJBiyNeApAblKUIJKXEgVenqXhBYZanwQibZalbLNSTCw/formResponse";
         const data = new FormData();
         
-        // إرسال النتيجة
-        data.append("entry.609466321", finalScore);
+        // إرسال النتيجة (بالـ ID الصحيح)
+        data.append("entry.1122387086", finalScore);
         
         // إرسال رقم الجولة تلقائياً
         data.append("entry.931849774", currentExperimentVersion); 
